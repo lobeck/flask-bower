@@ -9,15 +9,17 @@ To provide this, there is a flask blueprint to serve content from your ``bower_c
 Usage
 -----
 
+Flask-Bower is available on PyPi: https://pypi.python.org/pypi/Flask-Bower/ So just add it to your requirements.txt or install using ``pip install flask-bower``
+
 First you have to add it to your app::
 
-  from flask_bower import Bower
+  from flask.ext.bower import Bower
 
   [...]
 
   Bower(app)
 
-This provides the ``/bower url`` route and a new jinja2 function ``bower_url_for()``
+This provides the ``/bower`` url route and a new jinja2 function ``bower_url_for()``
 
 The ``bower_components`` directory has do be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
 

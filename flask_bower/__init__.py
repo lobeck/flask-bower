@@ -21,6 +21,7 @@ def serve(component, filename):
 
 def bower_url_for(component, filename, **values):
     root = current_app.config['BOWER_COMPONENTS_ROOT']
+    bower_data = None
     package_data = None
 
     # check if component exists in bower_components directory
@@ -28,8 +29,10 @@ def bower_url_for(component, filename, **values):
         raise BuildError('/'.join([component, filename]), values, 'GET')
 
     # load bower.json of specified component
-    with open('/'.join([current_app.root_path, root, component, 'bower.json']), 'r') as bower_file:
-        bower_data = json.load(bower_file)
+    bower_file_path = '/'.join([current_app.root_path, root, component, 'bower.json'])
+    if os.path.exists(bower_file_path):
+        with open(bower_file_path, 'r') as bower_file:
+            bower_data = json.load(bower_file)
 
     # check if package.json exists and load package.json data
     package_file_path = '/'.join([current_app.root_path, root, component, 'package.json'])
@@ -58,7 +61,7 @@ def bower_url_for(component, filename, **values):
 
     # determine version of component and append as ?version= parameter to allow cache busting
     if current_app.config['BOWER_QUERYSTRING_REVVING']:
-        if 'version' in bower_data:
+        if bower_data is not None and 'version' in bower_data:
             values['version'] = bower_data['version']
         elif package_data is not None and 'version' in package_data:
                 values['version'] = package_data['version']

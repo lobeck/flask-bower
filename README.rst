@@ -5,7 +5,7 @@ Flask-Bower
 Flask-Bower provides a method to manage and serve `bower <http://bower.io/>`_ installed packages. This simplifies javascript dependency management a lot.
 
 To provide this, there is a flask blueprint to serve content from your ``bower_components`` directory 
-and use `url_for` for serving the files same as serving files form static folder. No template changes is required. 
+and use ``url_for()`` for serving the files same as serving files form flask static folder. No template changes is required. 
 
 Usage
 -----
@@ -20,9 +20,10 @@ First you have to add it to your app::
 
   Bower(app)
 
-This provides the ``/bower`` url route and a new jinja2 function ``url_for()``
+This provides the ``/bower`` url route.
 
 The ``bower_components`` directory has do be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
+otherwise you can use relative path like ``../bower_components``
 
 Install your packages like ``jquery`` with bower: ``bower install -S jquery``
 

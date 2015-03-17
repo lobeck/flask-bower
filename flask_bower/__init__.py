@@ -20,55 +20,84 @@ def serve(component, filename):
 
 
 def bower_url_for(component, filename, **values):
-    root = current_app.config['BOWER_COMPONENTS_ROOT']
-    bower_data = None
-    package_data = None
+    '''
+    Endpoint is default flask url_for endpoint, static or route
+    if route endpoint is found, this will forward that to default url_for,
+    if static endpoint is found, this will check if the filename exists in BOWER_COMPONENTS_ROOT folder,
+        if it don't find the file, it fallbacks to default url_for,
+        otherwise it serves that file from BOWER_COMPONENTS_ROOT root
+    :param endpoint:
+    :param filename:
+    :param values:
+    :return:
+    '''
 
-    # check if component exists in bower_components directory
-    if not os.path.isdir('/'.join([current_app.root_path, root, component])):
-        raise BuildError('/'.join([component, filename]), values, 'GET')
+    default_url_for_args = values.copy()
+    if filename:
+        default_url_for_args['filename'] = filename
 
-    # load bower.json of specified component
-    bower_file_path = '/'.join([current_app.root_path, root, component, 'bower.json'])
-    if os.path.exists(bower_file_path):
-        with open(bower_file_path, 'r') as bower_file:
-            bower_data = json.load(bower_file)
+    if endpoint == 'static' or endpoint.endswith('.static'):
 
-    # check if package.json exists and load package.json data
-    package_file_path = '/'.join([current_app.root_path, root, component, 'package.json'])
-    if os.path.exists(package_file_path):
-        with open(package_file_path, 'r') as package_file:
-            package_data = json.load(package_file)
+        root = current_app.config['BOWER_COMPONENTS_ROOT']
+        bower_data = None
+        package_data = None
 
-    # check if filename is listed in 'main' of bower.json
-    # disabled because it caused some errors with blueimp-gallery
-#    if filename not in bower_data['main']:
-#        raise BuildError('/'.join([component, filename]), values, 'GET')
+        try:
+            filename_parts = filename.split('/')
+            component = filename_parts[0]
+            filename = '/'.join(filename_parts[1:])
 
-    # check if specified file actually exists
-    if not os.path.exists('/'.join([current_app.root_path, root, component, filename])):
-        raise BuildError('/'.join([component, filename]), values, 'GET')
+        except IndexError:
+            raise BuildError([filename], values, 'GET')
 
-    # check if minified file exists (by pattern <filename>.min.<ext>
-    # returns filename if successful
-    if current_app.config['BOWER_TRY_MINIFIED']:
-        if '.min.' not in filename:
-            minified_filename = '%s.min.%s' % tuple(filename.rsplit('.', 1))
-            minified_path = '/'.join([root, component, minified_filename])
+        # check if component exists in bower_components directory
+        if not os.path.isdir('/'.join([current_app.root_path, root, component])):
+            # FallBack to Default url_for FLASK
+            return url_for(endpoint, **default_url_for_args)
 
-            if os.path.exists('/'.join([current_app.root_path, minified_path])):
-                filename = minified_filename
+        # load bower.json of specified component
+        bower_file_path = '/'.join([current_app.root_path, root, component, 'bower.json'])
+        if os.path.exists(bower_file_path):
+            with open(bower_file_path, 'r') as bower_file:
+                bower_data = json.load(bower_file)
 
-    # determine version of component and append as ?version= parameter to allow cache busting
-    if current_app.config['BOWER_QUERYSTRING_REVVING']:
-        if bower_data is not None and 'version' in bower_data:
-            values['version'] = bower_data['version']
-        elif package_data is not None and 'version' in package_data:
-                values['version'] = package_data['version']
-        else:
-            values['version'] = os.path.getmtime('/'.join([current_app.root_path, root, component, filename]))
+        # check if package.json exists and load package.json data
+        package_file_path = '/'.join([current_app.root_path, root, component, 'package.json'])
+        if os.path.exists(package_file_path):
+            with open(package_file_path, 'r') as package_file:
+                package_data = json.load(package_file)
 
-    return url_for('bower.serve', component=component, filename=filename, **values)
+        # check if filename is listed in 'main' of bower.json
+        # disabled because it caused some errors with blueimp-gallery
+    #    if filename not in bower_data['main']:
+    #        raise BuildError('/'.join([component, filename]), values, 'GET')
+
+        # check if specified file actually exists
+        if not os.path.exists('/'.join([current_app.root_path, root, component, filename])):
+            raise BuildError('/'.join([component, filename]), values, 'GET')
+
+        # check if minified file exists (by pattern <filename>.min.<ext>
+        # returns filename if successful
+        if current_app.config['BOWER_TRY_MINIFIED']:
+            if '.min.' not in filename:
+                minified_filename = '%s.min.%s' % tuple(filename.rsplit('.', 1))
+                minified_path = '/'.join([root, component, minified_filename])
+
+                if os.path.exists('/'.join([current_app.root_path, minified_path])):
+                    filename = minified_filename
+
+        # determine version of component and append as ?version= parameter to allow cache busting
+        if current_app.config['BOWER_QUERYSTRING_REVVING']:
+            if bower_data is not None and 'version' in bower_data:
+                values['version'] = bower_data['version']
+            elif package_data is not None and 'version' in package_data:
+                    values['version'] = package_data['version']
+            else:
+                values['version'] = os.path.getmtime('/'.join([current_app.root_path, root, component, filename]))
+
+        return url_for('bower.serve', component=component, filename=filename, **values)
+
+    return url_for(endpoint, **default_url_for_args)
 
 
 class Bower(object):
@@ -93,4 +122,4 @@ class Bower(object):
 
         app.register_blueprint(blueprint)
 
-        app.jinja_env.globals['bower_url_for'] = bower_url_for
+        app.jinja_env.globals['url_for'] = bower_url_for

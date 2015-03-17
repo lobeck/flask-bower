@@ -19,7 +19,7 @@ def serve(component, filename):
     return send_file('/'.join([root, component, filename]))
 
 
-def bower_url_for(component, filename, **values):
+def bower_url_for(endpoint, filename=None, **values):
     '''
     Endpoint is default flask url_for endpoint, static or route
     if route endpoint is found, this will forward that to default url_for,

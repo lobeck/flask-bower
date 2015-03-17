@@ -4,7 +4,8 @@ Flask-Bower
 
 Flask-Bower provides a method to manage and serve `bower <http://bower.io/>`_ installed packages. This simplifies javascript dependency management a lot.
 
-To provide this, there is a flask blueprint to serve content from your ``bower_components`` directory and a custom ``bower_url_for()`` function to generate the appropriate urls
+To provide this, there is a flask blueprint to serve content from your ``bower_components`` directory 
+and use `url_for` for serving the files same as serving files form static folder. No template changes is required. 
 
 Usage
 -----
@@ -19,7 +20,7 @@ First you have to add it to your app::
 
   Bower(app)
 
-This provides the ``/bower`` url route and a new jinja2 function ``bower_url_for()``
+This provides the ``/bower`` url route and a new jinja2 function ``url_for()``
 
 The ``bower_components`` directory has do be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
 
@@ -34,19 +35,10 @@ Now it should look like::
   src
 
 
-To include and use this, you can use ``bower_url_for()``::
+To include and use this, you can use ``url_for()``::
 
-  <script src="{{ bower_url_for('jquery', 'dist/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='dist/jquery.js') }}"></script>
 
-Which will produce an url like (example is with ``BOWER_SUBDOMAIN=static``)::
-
-  <script src="http://static.foobar.dev:8080/bower/jquery/dist/jquery.min.js?version=2.1.3"></script>
-
-The Syntax is: ``bower_url_for(component, filename, parameters)``
-
-| ``component`` is the package name (like ``jquery``).
-| ``filename`` is the actual file inside the package like ``dist/jquery.js`` (also see ``BOWER_TRY_MINIFIED`` below)
-| ``parameters`` can be any key=value combination, which will be added to the produced url as parameter
 
 Configuration
 -------------

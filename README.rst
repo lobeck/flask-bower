@@ -4,14 +4,18 @@ Flask-Bower
 
 Flask-Bower provides a method to manage and serve `bower <http://bower.io/>`_ installed packages. This simplifies javascript dependency management a lot.
 
-To provide this, there is a flask blueprint to serve content from your ``bower_components`` directory and a custom ``bower_url_for()`` function to generate the appropriate urls
+To provide this, there is a flask blueprint to serve content from your ``bower_components`` directory and use ``url_for()`` for serving the files same as serving files form flask static folder.
 
 Usage
 -----
 
-Flask-Bower is available on PyPi: https://pypi.python.org/pypi/Flask-Bower/ So just add it to your requirements.txt or install using ``pip install flask-bower``
+| Flask-Bower is available on PyPi: https://pypi.python.org/pypi/Flask-Bower/
+|
+| So just add it to your requirements.txt or install using ``pip install flask-bower``
+|
+| First you have to add it to your app
 
-First you have to add it to your app::
+::
 
   from flask.ext.bower import Bower
 
@@ -19,11 +23,11 @@ First you have to add it to your app::
 
   Bower(app)
 
-This provides the ``/bower`` url route and a new jinja2 function ``bower_url_for()``
-
-The ``bower_components`` directory has do be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
-
-Install your packages like ``jquery`` with bower: ``bower install -S jquery``
+| This provides the ``/bower`` url route.
+|
+| The ``bower_components`` directory has to be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
+|
+| Install your packages like ``jquery`` with bower: ``bower install -S jquery``
 
 Now it should look like::
 
@@ -34,19 +38,10 @@ Now it should look like::
   src
 
 
-To include and use this, you can use ``bower_url_for()``::
+To include and use this, you can use ``url_for()``::
 
-  <script src="{{ bower_url_for('jquery', 'dist/jquery.js') }}"></script>
+  <script src="{{ url_for('bower.static', filename='jquery/dist/jquery.js') }}"></script>
 
-Which will produce an url like (example is with ``BOWER_SUBDOMAIN=static``)::
-
-  <script src="http://static.foobar.dev:8080/bower/jquery/dist/jquery.min.js?version=2.1.3"></script>
-
-The Syntax is: ``bower_url_for(component, filename, parameters)``
-
-| ``component`` is the package name (like ``jquery``).
-| ``filename`` is the actual file inside the package like ``dist/jquery.js`` (also see ``BOWER_TRY_MINIFIED`` below)
-| ``parameters`` can be any key=value combination, which will be added to the produced url as parameter
 
 Configuration
 -------------
@@ -58,6 +53,17 @@ There are several configuration options to customize the behavior:
 
   Directory name containing your installed bower packages
 
+``BOWER_KEEP_DEPRECATED``
+  default: ``True``
+
+  Keep deprecated functions available
+
+  Note: deprecated functions will be removed in future versions
+
+  affected functions:
+
+  - ``bower_url_for`` - please migrate to ``url_for('bower.static', filename='component/path')``
+
 ``BOWER_QUERYSTRING_REVVING``
   default: ``True``
 
@@ -67,17 +73,65 @@ There are several configuration options to customize the behavior:
   2. package.json (if available)
   3. file modification timestamp
 
+``BOWER_REPLACE_URL_FOR``
+  default: ``False``
+
+  Replace flasks ``url_for()`` function in templates.
+
+  This is useful - but not recommended - to build an "overlay" for the static folder.
+
+  **Warning:** Replacing ``url_for()`` causes conflicts with other flask extensions like ``flask-cdn``, since only one extension can replace ``url_for()`` at a time and the last registered extension wins.
+
+``BOWER_SUBDOMAIN``
+  default: ``None``
+
+  Subdomain to serve the content like ``static`` (see flask blueprint documentation for subdomains)
+
 ``BOWER_TRY_MINIFIED``
   default: ``True``
 
-  Check if a minified version is available and serve this instead (check if a file with ``<filename>.min.<ext>`` like ``dist/jquery.min.js`` exists)
+  Check if a minified version is available and serve this instead (check if a file with ``<filename>.min.<ext>`` like ``jquery/dist/jquery.min.js`` exists)
 
 ``BOWER_URL_PREFIX``
   default: ``/bower``
 
   Customize the url prefix
 
-``BOWER_SUBDOMAIN``
-  default: ``None``
+Changes
+-------
 
-  Subdomain to serve the content like ``static`` (see flask blueprint documentation for subdomains)
+:1.1.0:
+
+- flasks default ``url_for`` is now supported for bower assets - requires Flask >= 0.9
+- added ``BOWER_KEEP_DEPRECATED`` option
+- added ``BOWER_REPLACE_URL_FOR`` option
+- ``bower_url_for`` is now deprecated
+ 
+:1.0.3: (not released)
+
+- ``bower.json`` is now optional since it may be not available  if files are pulled from a random source which is not supporting bower
+
+:1.0.2:
+
+- updated documentation
+
+:1.0.1:
+
+- initial release
+
+
+Deprecations
+------------
+
+``bower_url_for(component, file)``
+==================================
+
+    |  This is now deprecated since it is a break of the development workflow due to the use of a different function than ``url_for()``, which is the default for url handling in flask.
+    |
+    |  Since v1.1.0 it is possible to use the default ``url_for()`` function also for flask assets::
+
+    ::
+
+        url_for('bower.static', filename='component/path')
+
+    Use of this new approach is recommended to all developers and to simplify the migration the ``bower_url_for()`` function will stay available for a while; though it can be disabled to help migrating (see ``BOWER_KEEP_DEPRECATED``)

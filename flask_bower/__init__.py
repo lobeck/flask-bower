@@ -2,7 +2,7 @@
 # coding=utf8
 import os
 from flask import abort, json, send_file, Blueprint, current_app, url_for
-from werkzeug.routing import BuildError
+import sys
 
 
 def validate_parameter(param):
@@ -20,13 +20,101 @@ def serve(component, filename):
 
 
 def bower_url_for(component, filename, **values):
+    """
+    DEPRECATED
+    This function provides backward compatibility - please migrate to the approach using "bower.static"
+
+    :param component: bower component (package)
+    :type component: str
+    :param filename: filename in bower component - can contain directories (like dist/jquery.js)
+    :type filename: str
+    :param values: additional url parameters
+    :type values: dict[str, str]
+    :return: url
+    :rtype: str
+    """
+    return build_url(component, filename, **values)
+
+
+def replaced_url_for(endpoint, filename=None, **values):
+    """
+    This function acts as "replacement" for the default url_for() and intercepts if it is a request for bower assets
+
+    If the file is not available in bower, the result is passed to flasks url_for().
+    This is useful - but not recommended - for "overlaying" the static directory (see README.rst).
+    """
+    lookup_result = overlay_url_for(endpoint, filename, **values)
+
+    if lookup_result is not None:
+        return lookup_result
+
+    return url_for(endpoint, filename=filename, **values)
+
+
+def handle_url_error(error, endpoint, values):
+    """
+    Intercept BuildErrors of url_for() using flasks build_error_handler API
+    """
+    url = overlay_url_for(endpoint, **values)
+    if url is None:
+        exc_type, exc_value, tb = sys.exc_info()
+        if exc_value is error:
+            raise exc_type, exc_value, tb
+        else:
+            raise error
+    # url_for will use this result, instead of raising BuildError.
+    return url
+
+
+def overlay_url_for(endpoint, filename=None, **values):
+    """
+    Replace flasks url_for() function to allow usage without template changes
+
+    If the requested endpoint is static or ending in .static, it tries to serve a bower asset, otherwise it will pass
+    the arguments to flask.url_for()
+
+    See http://flask.pocoo.org/docs/0.10/api/#flask.url_for
+    """
+    default_url_for_args = values.copy()
+    if filename:
+        default_url_for_args['filename'] = filename
+
+    if endpoint == 'static' or endpoint.endswith('.static'):
+
+        if '/' in filename:
+            filename_parts = filename.split('/')
+            component = filename_parts[0]
+            filename = '/'.join(filename_parts[1:])
+
+            returned_url = build_url(component, filename, **values)
+
+            if returned_url is not None:
+                return returned_url
+
+    return None
+
+
+def build_url(component, filename, **values):
+    """
+    search bower asset and build url
+
+    :param component: bower component (package)
+    :type component: str
+    :param filename: filename in bower component - can contain directories (like dist/jquery.js)
+    :type filename: str
+    :param values: additional url parameters
+    :type values: dict[str, str]
+    :return: url
+    :rtype: str | None
+    """
     root = current_app.config['BOWER_COMPONENTS_ROOT']
     bower_data = None
     package_data = None
 
     # check if component exists in bower_components directory
     if not os.path.isdir('/'.join([current_app.root_path, root, component])):
-        raise BuildError('/'.join([component, filename]), values, 'GET')
+        # FallBack to default url_for flask
+        return None
 
     # load bower.json of specified component
     bower_file_path = '/'.join([current_app.root_path, root, component, 'bower.json'])
@@ -40,14 +128,9 @@ def bower_url_for(component, filename, **values):
         with open(package_file_path, 'r') as package_file:
             package_data = json.load(package_file)
 
-    # check if filename is listed in 'main' of bower.json
-    # disabled because it caused some errors with blueimp-gallery
-#    if filename not in bower_data['main']:
-#        raise BuildError('/'.join([component, filename]), values, 'GET')
-
     # check if specified file actually exists
     if not os.path.exists('/'.join([current_app.root_path, root, component, filename])):
-        raise BuildError('/'.join([component, filename]), values, 'GET')
+        return None
 
     # check if minified file exists (by pattern <filename>.min.<ext>
     # returns filename if successful
@@ -64,7 +147,7 @@ def bower_url_for(component, filename, **values):
         if bower_data is not None and 'version' in bower_data:
             values['version'] = bower_data['version']
         elif package_data is not None and 'version' in package_data:
-                values['version'] = package_data['version']
+            values['version'] = package_data['version']
         else:
             values['version'] = os.path.getmtime('/'.join([current_app.root_path, root, component, filename]))
 
@@ -78,10 +161,12 @@ class Bower(object):
 
     def init_app(self, app):
         app.config.setdefault('BOWER_COMPONENTS_ROOT', 'bower_components')
+        app.config.setdefault('BOWER_KEEP_DEPRECATED', True)
         app.config.setdefault('BOWER_QUERYSTRING_REVVING', True)
+        app.config.setdefault('BOWER_REPLACE_URL_FOR', False)
+        app.config.setdefault('BOWER_SUBDOMAIN', None)
         app.config.setdefault('BOWER_TRY_MINIFIED', True)
         app.config.setdefault('BOWER_URL_PREFIX', '/bower')
-        app.config.setdefault('BOWER_SUBDOMAIN', None)
 
         blueprint = Blueprint(
             'bower',
@@ -93,4 +178,10 @@ class Bower(object):
 
         app.register_blueprint(blueprint)
 
-        app.jinja_env.globals['bower_url_for'] = bower_url_for
+        if app.config['BOWER_KEEP_DEPRECATED'] is True:
+            app.jinja_env.globals['bower_url_for'] = bower_url_for
+
+        if app.config['BOWER_REPLACE_URL_FOR'] is True:
+            app.jinja_env.globals['url_for'] = replaced_url_for
+
+        app.url_build_error_handlers.append(handle_url_error)

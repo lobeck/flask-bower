@@ -59,7 +59,7 @@ def handle_url_error(error, endpoint, values):
     if url is None:
         exc_type, exc_value, tb = sys.exc_info()
         if exc_value is error:
-            raise exc_type, exc_value, tb
+            raise exc_type(exc_value).with_traceback(tb)
         else:
             raise error
     # url_for will use this result, instead of raising BuildError.

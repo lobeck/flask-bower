@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name='Flask-Bower',
-    version='1.1.0',
+    version='1.1.1',
     url='http://github.com/lobeck/flask-bower',
     license='GPLv2',
     author='Christian Becker',
@@ -29,6 +29,8 @@ setup(
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ]

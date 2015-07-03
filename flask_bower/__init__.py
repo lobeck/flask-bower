@@ -16,7 +16,7 @@ def serve(component, filename):
 
     root = current_app.config['BOWER_COMPONENTS_ROOT']
 
-    return send_file('/'.join([root, component, filename]))
+    return send_file('/'.join([root, component, filename]), conditional=True)
 
 
 def bower_url_for(component, filename, **values):

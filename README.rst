@@ -100,6 +100,10 @@ There are several configuration options to customize the behavior:
 Changes
 -------
 
+:1:2.0:
+
+- add conditional switch on ``send_file`` to ensure 304 responses
+
 :1.1.0:
 
 - flasks default ``url_for`` is now supported for bower assets - requires Flask >= 0.9

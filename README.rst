@@ -100,7 +100,7 @@ There are several configuration options to customize the behavior:
 Changes
 -------
 
-:1:2.0:
+:1.2.0:
 
 - add conditional switch on ``send_file`` to ensure 304 responses
 

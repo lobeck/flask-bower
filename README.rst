@@ -100,6 +100,10 @@ There are several configuration options to customize the behavior:
 Changes
 -------
 
+:1.2.1:
+
+- remove BuildError handling since flask is already taking care (glitch in the flask documentation)
+
 :1.2.0:
 
 - add conditional switch on ``send_file`` to ensure 304 responses

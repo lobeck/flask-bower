@@ -1,0 +1,1 @@
+This is just some version of jquery for unittests. It's neither required nor used for normal operation.

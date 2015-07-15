@@ -1,7 +1,7 @@
 import unittest
 from flask import Flask, url_for
 from werkzeug.routing import BuildError
-from flask.ext.bower import Bower, bower_url_for
+from flask_bower import Bower, bower_url_for
 
 
 def additional_build_error_handler(error, endpoint, values):

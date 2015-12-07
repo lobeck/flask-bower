@@ -1,1 +1,1 @@
-flask
+-e git://git@github.com:mitsuhiko/flask.git#egg=flask

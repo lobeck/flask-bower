@@ -4,6 +4,8 @@ import os
 from flask import abort, json, send_file, Blueprint, current_app, url_for
 import sys
 
+from flask._compat import reraise
+
 
 def validate_parameter(param):
     if '..' in param or param.startswith('/'):
@@ -59,7 +61,7 @@ def handle_url_error(error, endpoint, values):
     if url is None:
         exc_type, exc_value, tb = sys.exc_info()
         if exc_value is error:
-            raise exc_type(exc_value, endpoint, values).with_traceback(tb)
+            reraise(exc_type, exc_value, tb)
         else:
             raise error
     # url_for will use this result, instead of raising BuildError.

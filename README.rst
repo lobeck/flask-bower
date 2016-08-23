@@ -17,7 +17,7 @@ Usage
 
 ::
 
-  from flask.ext.bower import Bower
+  from flask_bower import Bower
 
   [...]
 

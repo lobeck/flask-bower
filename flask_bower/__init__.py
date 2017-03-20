@@ -114,7 +114,7 @@ def build_url(component, filename, **values):
     package_data = None
 
     # check if component exists in bower_components directory
-    if not os.path.isdir('/'.join([current_app.root_path, root, component])):
+    if not os.path.isdir(os.path.join(current_app.root_path, root, component)):
         # FallBack to default url_for flask
         return None
 

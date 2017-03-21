@@ -18,7 +18,7 @@ def serve(component, filename):
 
     root = current_app.config['BOWER_COMPONENTS_ROOT']
 
-    return send_file('/'.join([root, component, filename]), conditional=True)
+    return send_file(os.path.join(root, component, filename), conditional=True)
 
 
 def bower_url_for(component, filename, **values):
@@ -83,10 +83,11 @@ def overlay_url_for(endpoint, filename=None, **values):
 
     if endpoint == 'static' or endpoint.endswith('.static'):
 
-        if '/' in filename:
-            filename_parts = filename.split('/')
+        if os.path.sep in filename:
+            filename_parts = filename.split(os.path.sep)
             component = filename_parts[0]
-            filename = '/'.join(filename_parts[1:])
+            # Using * magic here to expand list
+            filename = os.path.join(*filename_parts[1:])
 
             returned_url = build_url(component, filename, **values)
 
@@ -119,19 +120,19 @@ def build_url(component, filename, **values):
         return None
 
     # load bower.json of specified component
-    bower_file_path = '/'.join([current_app.root_path, root, component, 'bower.json'])
+    bower_file_path = os.path.join(current_app.root_path, root, component, 'bower.json')
     if os.path.exists(bower_file_path):
         with open(bower_file_path, 'r') as bower_file:
             bower_data = json.load(bower_file)
 
     # check if package.json exists and load package.json data
-    package_file_path = '/'.join([current_app.root_path, root, component, 'package.json'])
+    package_file_path = os.path.join(current_app.root_path, root, component, 'package.json')
     if os.path.exists(package_file_path):
         with open(package_file_path, 'r') as package_file:
             package_data = json.load(package_file)
 
     # check if specified file actually exists
-    if not os.path.exists('/'.join([current_app.root_path, root, component, filename])):
+    if not os.path.exists(os.path.join(current_app.root_path, root, component, filename)):
         return None
 
     # check if minified file exists (by pattern <filename>.min.<ext>
@@ -139,9 +140,9 @@ def build_url(component, filename, **values):
     if current_app.config['BOWER_TRY_MINIFIED']:
         if '.min.' not in filename:
             minified_filename = '%s.min.%s' % tuple(filename.rsplit('.', 1))
-            minified_path = '/'.join([root, component, minified_filename])
+            minified_path = os.path.join(root, component, minified_filename)
 
-            if os.path.exists('/'.join([current_app.root_path, minified_path])):
+            if os.path.exists(os.path.join(current_app.root_path, minified_path)):
                 filename = minified_filename
 
     # determine version of component and append as ?version= parameter to allow cache busting
@@ -151,7 +152,7 @@ def build_url(component, filename, **values):
         elif package_data is not None and 'version' in package_data:
             values['version'] = package_data['version']
         else:
-            values['version'] = os.path.getmtime('/'.join([current_app.root_path, root, component, filename]))
+            values['version'] = os.path.getmtime(os.path.join(current_app.root_path, root, component, filename))
 
     return url_for('bower.serve', component=component, filename=filename, **values)
 

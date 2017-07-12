@@ -3,7 +3,7 @@ Changes
 
 :1.3.0:
 
-- Support absolute paths in BOWER_COMPONENT_ROOT - thanks @jesseops_
+- Support absolute paths in BOWER_COMPONENT_ROOT - thanks `@jesseops`_
 
 .. _@jesseops: https://github.com/jesseops
 

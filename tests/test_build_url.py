@@ -93,18 +93,18 @@ class BowerTestCase(unittest.TestCase):
 
     def test_absolute_root_path(self):
         """
-        Test using an absolute path to BOWER_COMPONENT_ROOT
+        Test using an absolute path to BOWER_COMPONENTS_ROOT
         Copies the existing bower_components folder to 'bower_components_alt'
-        Sets the absolute path to the new directory as BOWER_COMPONENT_ROOT
+        Sets the absolute path to the new directory as BOWER_COMPONENTS_ROOT
 
         Validates that url_for continues to work & tests calling get on the
         provided URL.
         """
         alt_dir = os.path.abspath(os.path.join(os.path.curdir, 'tests', 'bower_components_alt'))
 
-        shutil.copytree(os.path.abspath(os.path.join(os.path.curdir, 'tests', 'bower_components')), alt_dir)
+        shutil.move(os.path.abspath(os.path.join(os.path.curdir, 'tests', 'bower_components')), alt_dir)
 
-        self.app.config['BOWER_COMPONENT_ROOT'] = alt_dir
+        self.app.config['BOWER_COMPONENTS_ROOT'] = alt_dir
         Bower(self.app)
 
         with self.app.app_context():
@@ -114,3 +114,6 @@ class BowerTestCase(unittest.TestCase):
         client = self.app.test_client()
 
         self.assertEqual(client.get(url).status_code, 200)
+
+        # move files back to leave it clean
+        shutil.move(alt_dir, os.path.abspath(os.path.join(os.path.curdir, 'tests', 'bower_components')))

@@ -25,7 +25,7 @@ Usage
 
 | This provides the ``/bower`` url route.
 |
-| The ``bower_components`` directory has to be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories)
+| Per default, the ``bower_components`` directory has to be inside the app directory (``app/bower_components`` - like your ``static`` and ``templates`` directories). Another directory can be specified using ``BOWER_COMPONENTS_ROOT``
 |
 | Install your packages like ``jquery`` with bower: ``bower install -S jquery``
 
@@ -96,36 +96,6 @@ There are several configuration options to customize the behavior:
   default: ``/bower``
 
   Customize the url prefix
-
-Changes
--------
-
-:1.2.1:
-
-- remove BuildError handling since flask is already taking care (glitch in the flask documentation)
-
-:1.2.0:
-
-- add conditional switch on ``send_file`` to ensure 304 responses
-
-:1.1.0:
-
-- flasks default ``url_for`` is now supported for bower assets - requires Flask >= 0.9
-- added ``BOWER_KEEP_DEPRECATED`` option
-- added ``BOWER_REPLACE_URL_FOR`` option
-- ``bower_url_for`` is now deprecated
- 
-:1.0.3: (not released)
-
-- ``bower.json`` is now optional since it may be not available  if files are pulled from a random source which is not supporting bower
-
-:1.0.2:
-
-- updated documentation
-
-:1.0.1:
-
-- initial release
 
 
 Deprecations

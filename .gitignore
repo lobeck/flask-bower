@@ -1,4 +1,7 @@
 /build
 /dist
 /*.egg-info
-/.idea
+*.pyc
+__pycache__
+.toxbuild
+.idea

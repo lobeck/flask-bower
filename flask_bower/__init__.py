@@ -83,8 +83,8 @@ def overlay_url_for(endpoint, filename=None, **values):
 
     if endpoint == 'static' or endpoint.endswith('.static'):
 
-        if os.path.sep in filename:
-            filename_parts = filename.split(os.path.sep)
+        if '/' in filename:
+            filename_parts = filename.split('/')
             component = filename_parts[0]
             # Using * magic here to expand list
             filename = os.path.join(*filename_parts[1:])

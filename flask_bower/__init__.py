@@ -120,7 +120,7 @@ def build_url(component, filename, **values):
         return None
 
     # load bower.json of specified component
-    bower_file_path = os.path.join(current_app.root_path, root, component, 'bower.json')
+    bower_file_path = os.path.join(current_app.root_path, root, component, '.bower.json')
     if os.path.exists(bower_file_path):
         with open(bower_file_path, 'r') as bower_file:
             bower_data = json.load(bower_file)

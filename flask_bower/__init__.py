@@ -4,7 +4,7 @@ import os
 from flask import abort, json, send_file, Blueprint, current_app, url_for
 import sys
 
-from flask._compat import reraise
+from six import reraise
 
 
 def validate_parameter(param):

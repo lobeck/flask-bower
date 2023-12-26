@@ -3,6 +3,7 @@ Changes
 
 :unreleased:
 
+- drop python 2.6 support / six dependency
 - switch build infrastructure to pytest and GitHub Actions
 - switch to `.bower.json` as per recommendation - thanks `@ivelin`_
 - Fix ModuleNotFoundError - thanks `@jeffhung`_

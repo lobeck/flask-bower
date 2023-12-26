@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # coding=utf8
 import os
-from flask import abort, json, send_file, Blueprint, current_app, url_for
 import sys
 
-from six import reraise
+from flask import abort, json, send_file, Blueprint, current_app, url_for
 
 
 def validate_parameter(param):
@@ -61,7 +60,7 @@ def handle_url_error(error, endpoint, values):
     if url is None:
         exc_type, exc_value, tb = sys.exc_info()
         if exc_value is error:
-            reraise(exc_type, exc_value, tb)
+            raise exc_type(exc_value, endpoint, values).with_traceback(tb)
         else:
             raise error
     # url_for will use this result, instead of raising BuildError.

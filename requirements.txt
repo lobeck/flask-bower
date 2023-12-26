@@ -1,2 +1,1 @@
 -e git+https://github.com/pallets/flask.git#egg=flask
-six

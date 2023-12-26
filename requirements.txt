@@ -1,2 +1,2 @@
--e git://github.com/mitsuhiko/flask.git#egg=flask
+-e git+https://github.com/pallets/flask.git#egg=flask
 six

@@ -1,11 +1,19 @@
 Changes
 -------
 
+:unreleased:
+
+- switch to `.bower.json` as per recommendation - thanks `@ivelin`_
+- Fix ModuleNotFoundError - thanks `@jeffhung`_
+
+.. _@ivelin: https://github.com/lobeck/flask-bower/pull/9
+.. _@jeffhung: https://github.com/lobeck/flask-bower/pull/10
+
 :1.3.0:
 
 - Support absolute paths in BOWER_COMPONENT_ROOT - thanks `@jesseops`_
 
-.. _@jesseops: https://github.com/jesseops
+.. _@jesseops: https://github.com/lobeck/flask-bower/pull/6
 
 :1.2.1:
 

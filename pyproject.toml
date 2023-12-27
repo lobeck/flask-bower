@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name    = "Flask-Bower"
+version = "2.0.0"
+authors = [
+  {name = "Christian Becker", email = "christian@dabecka.de"},
+]
+license = {text = "GPL-2.0-only"}
+description = "An extension to manage and serve your javascript assets with bower"
+readme = "README.rst"
+requires-python = ">3.0"
+dependencies = [
+  "Flask>=0.9",
+]
+classifiers = [
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Software Development :: Libraries :: Python Modules'
+]
+
+[project.urls]
+Homepage = "http://github.com/lobeck/flask-bower"

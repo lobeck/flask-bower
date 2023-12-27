@@ -1,7 +1,7 @@
 Changes
 -------
 
-:unreleased:
+:2.0.0:
 
 - drop python 2.6 support / six dependency
 - switch build infrastructure to pytest and GitHub Actions
